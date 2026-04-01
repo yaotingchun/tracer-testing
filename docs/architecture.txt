@@ -1,0 +1,13 @@
+=========================================
+MINI E-COMMERCE PLATFORM ARCHITECTURE
+=========================================
+
+Services:
+1. auth-service (Port 3001) - Handles basic token verification.
+2. user-service (Port 3002) - Holds user profile information.
+3. order-service (Port 3003) - Creation and orchestration of checkout.
+4. payment-service (Port 3004) - Payment gateway interface.
+
+Flow:
+Frontend requests validation -> auth-service
+Frontend creates orders -> order-service -> payment-service

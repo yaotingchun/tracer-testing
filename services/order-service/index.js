@@ -3,11 +3,31 @@ const http = require('http');
 const app = express();
 app.use(express.json());
 
-app.post('/orders', (req, res) => {
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) return res.status(401).json({ error: 'Unauthorized' });
+
+    const authReq = http.request({
+        hostname: 'localhost',
+        port: 3001,
+        path: '/auth/verify',
+        method: 'POST',
+        headers: { 'Authorization': authHeader }
+    }, (authRes) => {
+        if (authRes.statusCode === 200) {
+            next();
+        } else {
+            res.status(401).json({ error: 'Unauthorized token' });
+        }
+    });
+    authReq.on('error', () => res.status(500).json({ error: 'Auth service down' }));
+    authReq.end();
+};
+
+app.post('/orders', verifyToken, (req, res) => {
     const { user_id, items, total } = req.body;
     console.log(`Creating order for user ${user_id}`);
 
-    // Call payment-service to charge the total amount
     const paymentPayload = JSON.stringify({ order_id: 101, amount: total });
     const payReq = http.request({
         hostname: 'localhost',
@@ -32,7 +52,7 @@ app.post('/orders', (req, res) => {
     });
 
     payReq.on('error', (err) => {
-        res.status(500).json({ error: 'Payment service unreachable', details: err.message });
+        res.status(500).json({ error: 'Payment service unreachable' });
     });
 
     payReq.write(paymentPayload);

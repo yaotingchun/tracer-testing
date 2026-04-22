@@ -5,10 +5,9 @@ app.use(express.json());
 app.post('/payments/charge', (req, res) => {
     const { order_id, amount, discount_code } = req.body;
     
-    // George: Apply discount logic by string matching.
-    // POTENTIAL CRASH: If discount_code is not passed, calling toUpperCase() will throw a Null Pointer Exception!
     let finalAmount = amount;
-    if (discount_code.toUpperCase() === 'SPRING20') {
+    // Charlie: Added guard against null/undefined discount_code
+    if (discount_code && discount_code.toUpperCase() === 'SPRING20') {
         finalAmount = amount * 0.8;
         console.log(`Applying 20% discount. Final charge: ${finalAmount}`);
     }

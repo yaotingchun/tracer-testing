@@ -7,19 +7,19 @@ CREATE TABLE users (
 );
 
 CREATE TABLE profiles (
-    user_id INT PRIMARY KEY,
+    customer_id INT PRIMARY KEY, -- Renamed from user_id
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     address TEXT,
     phone VARCHAR(20),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (customer_id) REFERENCES users(id)
 );
 
 CREATE TABLE orders (
     id INT PRIMARY KEY,
-    user_id INT NOT NULL,
+    customer_id INT NOT NULL, -- Renamed from user_id
     status VARCHAR(50) DEFAULT 'pending',
     total_amount DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (customer_id) REFERENCES users(id)
 );

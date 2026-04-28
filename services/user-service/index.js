@@ -25,8 +25,9 @@ const verifyToken = (req, res, next) => {
 };
 
 app.get('/users/:id/profile', verifyToken, (req, res) => {
+    // Fiona: Changed schema user_id key mapping to customer_id
     res.json({
-        user_id: req.params.id,
+        customer_id: req.params.id,
         first_name: 'John',
         last_name: 'Doe',
         address: '123 Main St, New York, NY 10001'

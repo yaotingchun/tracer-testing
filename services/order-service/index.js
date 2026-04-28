@@ -25,10 +25,12 @@ const verifyToken = (req, res, next) => {
 };
 
 app.post('/orders', verifyToken, (req, res) => {
-    const { user_id, items, total } = req.body;
-    console.log(`Creating order for user ${user_id}`);
+    // Fiona: Updated user_id to customer_id inside the body
+    const { customer_id, items, total } = req.body;
+    console.log(`Creating order for customer ${customer_id}`);
 
-    const paymentPayload = JSON.stringify({ order_id: 101, amount: total });
+    // Call payment service with customer_id instead of user_id
+    const paymentPayload = JSON.stringify({ order_id: 101, amount: total, user_id: customer_id });
     const payReq = http.request({
         hostname: 'localhost',
         port: 3004,

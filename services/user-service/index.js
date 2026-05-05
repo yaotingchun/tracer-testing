@@ -25,12 +25,19 @@ const verifyToken = (req, res, next) => {
 };
 
 app.get('/users/:id/profile', verifyToken, (req, res) => {
-    // Fiona: Changed schema user_id key mapping to customer_id
     res.json({
         customer_id: req.params.id,
         first_name: 'John',
         last_name: 'Doe',
         address: '123 Main St, New York, NY 10001'
+    });
+});
+
+app.get('/users/:id/loyalty', verifyToken, (req, res) => {
+    // George: Mock response from database loyalty points
+    res.json({
+        customer_id: req.params.id,
+        points: 150
     });
 });
 

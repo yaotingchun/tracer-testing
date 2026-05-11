@@ -4,8 +4,35 @@ export default function CheckoutPage({ cartItems, total }) {
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [discountCode, setDiscountCode] = useState('');
 
+    const authenticatedFetch = (url, options) => {
+        let token = localStorage.getItem('token');
+        options.headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`
+        };
+
+        return fetch(url, options).then(res => {
+            if (res.status === 401) {
+                // Bob: Token expired, call refresh token endpoint
+                const refreshToken = localStorage.getItem('refreshToken');
+                return fetch('/api/auth/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refreshToken })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    localStorage.setItem('token', data.token);
+                    options.headers['Authorization'] = `Bearer ${data.token}`;
+                    return fetch(url, options); // Retry
+                });
+            }
+            return res;
+        });
+    };
+
     const handleCheckout = () => {
-        fetch('/api/orders', {
+        authenticatedFetch('/api/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

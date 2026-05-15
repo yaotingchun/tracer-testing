@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const { getProfileData } = require('./profile-helper');
 const app = express();
 app.use(express.json());
 
@@ -25,16 +26,12 @@ const verifyToken = (req, res, next) => {
 };
 
 app.get('/users/:id/profile', verifyToken, (req, res) => {
-    res.json({
-        customer_id: req.params.id,
-        first_name: 'John',
-        last_name: 'Doe',
-        address: '123 Main St, New York, NY 10001'
-    });
+    // Now calls profile-helper
+    const profile = getProfileData(req.params.id);
+    res.json(profile);
 });
 
 app.get('/users/:id/loyalty', verifyToken, (req, res) => {
-    // George: Mock response from database loyalty points
     res.json({
         customer_id: req.params.id,
         points: 150

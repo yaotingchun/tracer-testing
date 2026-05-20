@@ -3,10 +3,19 @@ const http = require('http');
 const app = express();
 app.use(express.json());
 
+// George: Added Promo Campaigns endpoint for frontend banners.
+// UNSTABLE SCHEMA: Key names inside active_promos can change based on campaigns, e.g. using camelCase or nested object structures dynamically.
+app.get('/payments/promo-campaigns', (req, res) => {
+    res.json({
+        active_promos: {
+            "spring_rush": { discount_percent: 15, banner_text: "Spring is here! 15% off" }
+        }
+    });
+});
+
 app.post('/payments/charge', (req, res) => {
     const { order_id, amount, discount_code, user_id } = req.body;
     
-    // Fetch profile from user-service to calculate tax location
     const userReq = http.request({
         hostname: 'localhost',
         port: 3002,
@@ -17,10 +26,8 @@ app.post('/payments/charge', (req, res) => {
         userRes.on('data', chunk => data += chunk);
         userRes.on('end', () => {
             const profile = JSON.parse(data);
-            let taxRate = 0.05; // Standard 5% default
+            let taxRate = 0.05;
             
-            // George: Tax based on state string in address.
-            // Risk: If user-service structure changes or address is missing, this could throw.
             if (profile.address && profile.address.includes('NY')) {
                 taxRate = 0.08;
             }
@@ -35,7 +42,7 @@ app.post('/payments/charge', (req, res) => {
         });
     });
     userReq.on('error', () => {
-        res.status(500).json({ error: 'User-service call failed for tax calculation' });
+        res.status(500).json({ error: 'User-service call failed' });
     });
     userReq.end();
 });

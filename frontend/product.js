@@ -3,32 +3,21 @@ import React, { useState, useEffect } from 'react';
 export default function ProductPage({ productId }) {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [promo, setPromo] = useState('');
 
     useEffect(() => {
-        // Fetch product
         fetch(`/api/products/${productId}`)
             .then(res => res.json())
             .then(data => {
                 setProduct(data);
                 setLoading(false);
             });
-
-        // Bob: Fetch campaign details and display in header banner
-        // BUG: Directly dereferencing nested keys without null verification (breaks if structure changes)
-        fetch('/api/payments/promo-campaigns')
-            .then(res => res.json())
-            .then(data => {
-                setPromo(data.active_promos.spring_rush.banner_text);
-            })
-            .catch(e => console.error('Failed to load promotions', e));
     }, [productId]);
 
     if (loading) return <div>Loading product...</div>;
 
     return (
         <div className="product-container" style={{ padding: '20px', fontFamily: 'Arial' }}>
-            {promo && <div className="promo-banner" style={{ background: '#ffeb3b', padding: '10px' }}>{promo}</div>}
+            {/* Fiona: Reverted promo-banners due to unstable active_promos JSON crashes */}
             <h1>{product.name}</h1>
             <p>{product.description}</p>
             <span className="price">${product.price}</span>

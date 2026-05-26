@@ -3,13 +3,12 @@ const http = require('http');
 const app = express();
 app.use(express.json());
 
-// George: Added Promo Campaigns endpoint for frontend banners.
-// UNSTABLE SCHEMA: Key names inside active_promos can change based on campaigns, e.g. using camelCase or nested object structures dynamically.
+// Charlie: Stabilized active_promos response schema. Always returns flat list array of campaigns.
 app.get('/payments/promo-campaigns', (req, res) => {
     res.json({
-        active_promos: {
-            "spring_rush": { discount_percent: 15, banner_text: "Spring is here! 15% off" }
-        }
+        campaigns: [
+            { id: "spring_rush", discountPercent: 15, bannerText: "Spring is here! 15% off" }
+        ]
     });
 });
 

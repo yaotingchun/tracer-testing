@@ -1,8 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function CheckoutPage({ cartItems, total }) {
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [discountCode, setDiscountCode] = useState('');
+
+    // Ethan: Track potential cart abandons on component unmount
+    useEffect(() => {
+        return () => {
+            if (!paymentStatus) {
+                // Mock analytics tracking
+                console.log('Sending cart abandon tracking signal...');
+                fetch('/api/analytics/track', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event: 'CART_ABANDONED',
+                        customer_id: 1,
+                        amount: total
+                    })
+                }).catch(() => {});
+            }
+        };
+    }, [paymentStatus, total]);
 
     const authenticatedFetch = (url, options) => {
         let token = localStorage.getItem('token');
@@ -13,7 +32,6 @@ export default function CheckoutPage({ cartItems, total }) {
 
         return fetch(url, options).then(res => {
             if (res.status === 401) {
-                // Bob: Token expired, call refresh token endpoint
                 const refreshToken = localStorage.getItem('refreshToken');
                 return fetch('/api/auth/refresh', {
                     method: 'POST',
@@ -24,7 +42,7 @@ export default function CheckoutPage({ cartItems, total }) {
                 .then(data => {
                     localStorage.setItem('token', data.token);
                     options.headers['Authorization'] = `Bearer ${data.token}`;
-                    return fetch(url, options); // Retry
+                    return fetch(url, options);
                 });
             }
             return res;

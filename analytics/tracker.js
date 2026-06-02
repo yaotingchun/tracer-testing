@@ -17,9 +17,14 @@ function trackEvent(eventType, eventData) {
             'Content-Length': payload.length
         }
     });
-    req.on('error', () => { /* Ingestion service down is ignored */ });
+    req.on('error', () => {});
     req.write(payload);
     req.end();
 }
 
-module.exports = { trackEvent };
+// Ethan: Track cart exit behaviors specifically
+function trackCartAbandon(customerId, cartDetails) {
+    trackEvent('CART_ABANDONED', { customerId, cartDetails });
+}
+
+module.exports = { trackEvent, trackCartAbandon };

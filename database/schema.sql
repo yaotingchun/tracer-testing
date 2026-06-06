@@ -12,6 +12,7 @@ CREATE TABLE profiles (
     last_name VARCHAR(100),
     address TEXT,
     phone VARCHAR(20),
+    tier VARCHAR(20) DEFAULT 'bronze', -- George: added customer tier
     FOREIGN KEY (customer_id) REFERENCES users(id)
 );
 

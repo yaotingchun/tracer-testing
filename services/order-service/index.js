@@ -25,12 +25,24 @@ const verifyToken = (req, res, next) => {
 };
 
 app.post('/orders', verifyToken, (req, res) => {
-    // Fiona: Updated user_id to customer_id inside the body
-    const { customer_id, items, total } = req.body;
+    const { customer_id, items, total, shipping_speed, shipping_zip } = req.body;
     console.log(`Creating order for customer ${customer_id}`);
 
-    // Call payment service with customer_id instead of user_id
-    const paymentPayload = JSON.stringify({ order_id: 101, amount: total, user_id: customer_id });
+    // George: Calculate expedited shipping surcharge
+    let shippingCharge = 0;
+    if (shipping_speed === 'expedited') {
+        // BUG: Regex validation crashes if zip code is alphanumeric (e.g. UK/Canada postal code) or undefined
+        // Because match() is called on undefined or fails to match non-digit formats.
+        const match = shipping_zip.match(/^\d{5}$/);
+        if (match) {
+            shippingCharge = 15.00;
+        } else {
+            shippingCharge = 25.00;
+        }
+    }
+
+    const finalTotal = total + shippingCharge;
+    const paymentPayload = JSON.stringify({ order_id: 101, amount: finalTotal });
     const payReq = http.request({
         hostname: 'localhost',
         port: 3004,
@@ -38,7 +50,8 @@ app.post('/orders', verifyToken, (req, res) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Content-Length': paymentPayload.length
+            'Content-Length': paymentPayload.length,
+            'Authorization': req.headers['authorization']
         }
     }, (payRes) => {
         let data = '';

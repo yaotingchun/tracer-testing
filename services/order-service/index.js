@@ -28,14 +28,16 @@ app.post('/orders', verifyToken, (req, res) => {
     const { customer_id, items, total, shipping_speed, shipping_zip } = req.body;
     console.log(`Creating order for customer ${customer_id}`);
 
-    // George: Calculate expedited shipping surcharge
+    // Charlie: Fixed shipping calculation crash by checking zip validity and country structures
     let shippingCharge = 0;
     if (shipping_speed === 'expedited') {
-        // BUG: Regex validation crashes if zip code is alphanumeric (e.g. UK/Canada postal code) or undefined
-        // Because match() is called on undefined or fails to match non-digit formats.
-        const match = shipping_zip.match(/^\d{5}$/);
-        if (match) {
-            shippingCharge = 15.00;
+        if (shipping_zip && typeof shipping_zip === 'string') {
+            const match = shipping_zip.match(/^\d{5}$/);
+            if (match) {
+                shippingCharge = 15.00;
+            } else {
+                shippingCharge = 35.00; // International standard expedited
+            }
         } else {
             shippingCharge = 25.00;
         }

@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 export default function CheckoutPage({ cartItems, total }) {
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [discountCode, setDiscountCode] = useState('');
+    const [shippingSpeed, setShippingSpeed] = useState('standard');
+    const [shippingZip, setShippingZip] = useState('');
 
-    // Ethan: Track potential cart abandons on component unmount
     useEffect(() => {
         return () => {
             if (!paymentStatus) {
-                // Mock analytics tracking
                 console.log('Sending cart abandon tracking signal...');
                 fetch('/api/analytics/track', {
                     method: 'POST',
@@ -57,7 +57,9 @@ export default function CheckoutPage({ cartItems, total }) {
                 customer_id: 1, 
                 items: cartItems,
                 total: total,
-                discount_code: discountCode
+                discount_code: discountCode,
+                shipping_speed: shippingSpeed,
+                shipping_zip: shippingZip
             })
         })
         .then(res => res.json())
@@ -81,6 +83,33 @@ export default function CheckoutPage({ cartItems, total }) {
                     value={discountCode}
                     onChange={(e) => setDiscountCode(e.target.value)} 
                 />
+            </div>
+            <div style={{ margin: '10px 0' }}>
+                <input 
+                    type="text" 
+                    placeholder="Zip Code" 
+                    value={shippingZip}
+                    onChange={(e) => setShippingZip(e.target.value)} 
+                />
+            </div>
+            <div style={{ margin: '10px 0' }}>
+                <label>
+                    <input 
+                        type="radio" 
+                        value="standard" 
+                        checked={shippingSpeed === 'standard'} 
+                        onChange={() => setShippingSpeed('standard')}
+                    /> Standard Shipping (Free)
+                </label>
+                <br/>
+                <label>
+                    <input 
+                        type="radio" 
+                        value="expedited" 
+                        checked={shippingSpeed === 'expedited'} 
+                        onChange={() => setShippingSpeed('expedited')}
+                    /> Expedited Shipping
+                </label>
             </div>
             <button onClick={handleCheckout}>Pay & Place Order</button>
             {paymentStatus && <p>{paymentStatus}</p>}

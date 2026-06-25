@@ -1,0 +1,22 @@
+E-Commerce System Dependency Diagram
+=====================================
+
+   +------------------+
+   |  React Frontend  |
+   +--+----+-------+--+
+      |    |       |
+      |    |       +-----------------------------------+
+      |    |                                           |
+      v    v                                           v
++-----+----+---+     +------------------+     +--------+--------+
+| auth-service |<----+  order-service   +---->| payment-service |
++--------------+     +--------+---------+     +---+-------------+
+      ^                       |                   |
+      |                       v                   |
+      |              +--------+---------+         |
+      +--------------+   user-service   |<--------+
+                     +------------------+
+
+Database Dependency:
+- Shared sqlite schema binds orders/profiles/users across services.
+- analytics/etl.py directly binds to orders/profiles schema output.

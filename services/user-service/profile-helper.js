@@ -5,7 +5,7 @@ function getProfileData(id) {
         first_name: 'John',
         last_name: 'Doe',
         address: '123 Main St, New York, NY 10001',
-        phone: '555-0199',
+        phone_number: '555-0199',
         tier: 'gold' // Mock gold tier status
     };
 }
